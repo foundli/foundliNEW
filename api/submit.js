@@ -1,6 +1,8 @@
 // foundli — Airtable submission handler
 // Runs on Vercel's servers — token never exposed to the browser
 
+export default async function handler(req, res) {oken never exposed to the browser
+
 export default async function handler(req, res) {
 
   // Only allow POST
