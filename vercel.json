@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/match", "destination": "/match.html" },
+    { "source": "/api/submit", "destination": "/api/submit.js" }
+  ]
+}

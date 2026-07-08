@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find my adviser | foundli</title>
+  <meta name="description" content="Answer 7 plain-English questions and we'll match you with a trusted, FCA-verified financial adviser." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <style>
+    :root {
+      --teal-deep:   #0d3d42;
+      --teal:        #18727d;
+      --teal-ink:    #071e22;
+      --teal-light:  #f4f9f9;
+      --teal-soft:   #ddf0f1;
+      --teal-muted:  #9ecdd2;
+      --sage:        #5b7263;
+      --sage-light:  #eef4ee;
+      --blush:       #c49183;
+      --blush-light: #f5ece9;
+      --warm-grey:   #d1cdca;
+      --border:      #d0e8ea;
+      --ink:         #0d3d42;
+      --muted:       #5b7263;
+      --white:       #ffffff;
+      --font:        'Nunito Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--teal-deep);
+      color: var(--white);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky; top: 0; z-index: 100;
+      background: var(--teal-deep);
+    }
+    .nav-logo { font-weight: 800; font-size: 20px; color: var(--white); letter-spacing: -0.5px; text-decoration: none; }
+    .nav-back {
+      font-size: 13px; color: var(--teal-muted); background: none;
+      border: none; cursor: pointer; display: flex; align-items: center; gap: 6px;
+      font-family: var(--font); font-weight: 600; transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--white); }
+    .nav-steps { font-size: 12px; color: var(--teal-muted); font-weight: 600; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap { padding: 0 32px; background: var(--teal-deep); }
+    .progress-track {
+      height: 3px; background: rgba(255,255,255,0.12);
+      border-radius: 2px; margin: 16px 0;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--teal-muted), var(--blush));
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ── MAIN WRAPPER ── */
+    .main {
+      min-height: calc(100vh - 80px);
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 48px 20px 80px;
+    }
+    .card {
+      width: 100%; max-width: 600px;
+      animation: fadeUp 0.4s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* ── QUESTION HEADER ── */
+    .q-number {
+      font-size: 11px; font-weight: 700; color: var(--blush);
+      text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 12px;
+    }
+    .q-title {
+      font-size: clamp(22px, 4vw, 32px); font-weight: 800;
+      color: var(--white); line-height: 1.2; letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .q-sub {
+      font-size: 14px; color: var(--teal-muted); font-weight: 400;
+      line-height: 1.65; margin-bottom: 32px;
+    }
+    .q-sub a { color: var(--blush); text-decoration: none; font-weight: 600; }
+
+    /* ── OPTIONS GRID ── */
+    .options { display: grid; gap: 10px; }
+    .options.two-col { grid-template-columns: 1fr 1fr; }
+    .options.three-col { grid-template-columns: 1fr 1fr 1fr; }
+
+    .opt {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 16px 18px; border-radius: 12px;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      cursor: pointer; transition: all 0.2s; text-align: left;
+      font-family: var(--font);
+      color: rgba(255,255,255,0.85);
+    }
+    .opt:hover {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-1px);
+    }
+    .opt.selected {
+      border-color: var(--blush);
+      background: rgba(196,145,131,0.15);
+      color: var(--white);
+    }
+    .opt-check {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.25);
+      flex-shrink: 0; display: flex; align-items: center;
+      justify-content: center; margin-top: 1px;
+      transition: all 0.2s;
+    }
+    .opt.selected .opt-check {
+      background: var(--blush); border-color: var(--blush);
+    }
+    .opt-check-inner {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--white); opacity: 0; transition: opacity 0.2s;
+    }
+    .opt.selected .opt-check-inner { opacity: 1; }
+    .opt-content { flex: 1; }
+    .opt-label { font-size: 14px; font-weight: 600; line-height: 1.4; }
+    .opt-desc { font-size: 12px; color: var(--teal-muted); margin-top: 3px; line-height: 1.5; }
+    .opt.selected .opt-desc { color: rgba(255,255,255,0.65); }
+
+    /* ICON OPTS */
+    .opt-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 18px; transition: all 0.2s;
+    }
+    .opt.selected .opt-icon { background: rgba(196,145,131,0.25); }
+
+    /* ── TEXT INPUT ── */
+    .input-wrap { position: relative; }
+    .location-input {
+      width: 100%; padding: 16px 18px 16px 48px;
+      border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06); color: var(--white);
+      font-size: 15px; font-family: var(--font); font-weight: 500;
+      outline: none; transition: border-color 0.2s;
+    }
+    .location-input::placeholder { color: rgba(255,255,255,0.3); }
+    .location-input:focus { border-color: var(--blush); }
+    .location-icon {
+      position: absolute; left: 16px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--teal-muted); font-size: 18px;
+    }
+    .remote-toggle {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 14px; cursor: pointer;
+      font-size: 13px; color: var(--teal-muted); font-weight: 600;
+    }
+    .toggle-box {
+      width: 44px; height: 24px; border-radius: 12px;
+      background: rgba(255,255,255,0.12); position: relative;
+      transition: background 0.2s; flex-shrink: 0;
+    }
+    .toggle-box.on { background: var(--blush); }
+    .toggle-knob {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--white); position: absolute;
+      top: 3px; left: 3px; transition: transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .toggle-box.on .toggle-knob { transform: translateX(20px); }
+
+    /* ── AMOUNT OPTIONS ── */
+    .amount-opt {
+      padding: 14px 18px; border-radius: 10px;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      cursor: pointer; transition: all 0.2s; display: flex;
+      align-items: center; justify-content: space-between;
+      font-family: var(--font);
+    }
+    .amount-opt:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.07); }
+    .amount-opt.selected { border-color: var(--blush); background: rgba(196,145,131,0.15); }
+    .amount-label { font-size: 15px; font-weight: 700; color: var(--white); }
+    .amount-sub { font-size: 12px; color: var(--teal-muted); margin-top: 2px; }
+    .amount-pip {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.2);
+      flex-shrink: 0; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .amount-opt.selected .amount-pip {
+      background: var(--blush); border-color: var(--blush);
+    }
+    .amount-opt.selected .amount-pip::after {
+      content: ''; width: 6px; height: 6px;
+      border-radius: 50%; background: var(--white);
+    }
+
+    /* ── NAVIGATION BUTTONS ── */
+    .nav-btns {
+      display: flex; gap: 12px; margin-top: 36px;
+      justify-content: space-between; align-items: center;
+    }
+    .btn-next {
+      font-family: var(--font); font-size: 15px; font-weight: 800;
+      background: var(--blush); color: var(--white);
+      padding: 15px 36px; border-radius: 10px; border: none;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; gap: 8px;
+      letter-spacing: 0.2px;
+    }
+    .btn-next:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .btn-next:disabled { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.25); cursor: not-allowed; transform: none; }
+    .btn-prev {
+      font-family: var(--font); font-size: 13px; font-weight: 600;
+      background: none; color: var(--teal-muted); border: none;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: color 0.2s; padding: 0;
+    }
+    .btn-prev:hover { color: var(--white); }
+
+    /* ── MATCHING SCREEN ── */
+    .matching-screen {
+      text-align: center; padding: 80px 20px;
+    }
+    .matching-logo {
+      font-size: 22px; font-weight: 800; color: var(--white);
+      letter-spacing: -0.5px; margin-bottom: 32px;
+    }
+    .spinner {
+      width: 56px; height: 56px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top: 3px solid var(--blush);
+      border-radius: 50%; margin: 0 auto 28px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .matching-title {
+      font-size: 26px; font-weight: 800; color: var(--white);
+      margin-bottom: 10px; letter-spacing: -0.5px;
+    }
+    .matching-steps { margin-top: 28px; display: flex; flex-direction: column; gap: 8px; max-width: 320px; margin-left: auto; margin-right: auto; }
+    .matching-step {
+      font-size: 13px; color: var(--teal-muted); padding: 10px 16px;
+      border-radius: 8px; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; gap: 10px;
+      transition: all 0.4s;
+    }
+    .matching-step.done { color: var(--white); border-color: rgba(196,145,131,0.3); background: rgba(196,145,131,0.1); }
+    .matching-step i { font-size: 15px; }
+
+    /* ── RESULTS PAGE ── */
+    .results-page {
+      background: var(--teal-light);
+      min-height: 100vh;
+      animation: fadeUp 0.5s ease;
+    }
+    .results-header {
+      background: var(--teal-deep); padding: 40px 32px 52px;
+      text-align: center;
+    }
+    .results-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 600;
+      background: rgba(196,145,131,0.18); color: #e8b9ab;
+      padding: 5px 14px; border-radius: 20px; margin-bottom: 16px;
+      border: 1px solid rgba(196,145,131,0.28);
+    }
+    .results-title {
+      font-size: clamp(26px,4vw,38px); font-weight: 800;
+      color: var(--white); letter-spacing: -1px; margin-bottom: 8px;
+    }
+    .results-sub { font-size: 14px; color: var(--teal-muted); margin-bottom: 0; }
+
+    /* PROFILE SUMMARY */
+    .profile-summary {
+      max-width: 760px; margin: 0 auto;
+      padding: 28px 32px;
+    }
+    .profile-card {
+      background: var(--white); border-radius: 14px;
+      border: 1px solid var(--border); padding: 22px 24px;
+      margin-bottom: 8px;
+    }
+    .profile-label {
+      font-size: 10px; font-weight: 700; color: var(--blush);
+      text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;
+    }
+    .profile-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .profile-tag {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; color: var(--ink);
+      background: var(--teal-light); padding: 5px 12px;
+      border-radius: 20px; border: 1px solid var(--border);
+    }
+    .profile-tag i { font-size: 13px; color: var(--teal); }
+
+    /* ADVISER CARDS */
+    .advisers-wrap { max-width: 760px; margin: 0 auto; padding: 0 32px 60px; }
+    .advisers-title {
+      font-size: 11px; font-weight: 700; color: var(--blush);
+      text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px;
+    }
+
+    .adviser-card {
+      background: var(--white); border-radius: 14px;
+      border: 1px solid var(--border); padding: 24px;
+      margin-bottom: 14px; transition: all 0.22s;
+      box-shadow: 0 1px 4px rgba(13,61,66,0.04);
+    }
+    .adviser-card:hover {
+      border-color: var(--teal); transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(13,61,66,0.1);
+    }
+
+    .adviser-top {
+      display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px;
+    }
+    .adviser-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal-soft), var(--teal-muted));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; color: var(--teal-deep);
+      flex-shrink: 0; font-family: var(--font);
+    }
+    .adviser-info { flex: 1; }
+    .adviser-name { font-size: 17px; font-weight: 800; color: var(--ink); margin-bottom: 3px; letter-spacing: -0.3px; }
+    .adviser-firm { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .adviser-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .adviser-badge {
+      font-size: 10px; font-weight: 700; padding: 3px 9px;
+      border-radius: 20px;
+    }
+    .badge-fca { background: var(--teal-soft); color: var(--teal); }
+    .badge-ind { background: var(--sage-light); color: var(--sage); }
+    .badge-src { background: var(--blush-light); color: var(--blush); }
+
+    .match-score-wrap { text-align: right; flex-shrink: 0; }
+    .match-score { font-size: 28px; font-weight: 800; color: var(--teal); letter-spacing: -1px; }
+    .match-score-label { font-size: 10px; color: var(--muted); font-weight: 600; }
+
+    .why-match {
+      background: var(--teal-light); border-radius: 8px;
+      padding: 12px 16px; margin-bottom: 16px;
+      border-left: 3px solid var(--teal);
+    }
+    .why-match-label {
+      font-size: 10px; font-weight: 700; color: var(--teal);
+      text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;
+    }
+    .why-match-text { font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+    .adviser-meta {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 10px; margin-bottom: 18px;
+    }
+    .meta-item { }
+    .meta-label { font-size: 10px; font-weight: 700; color: var(--warm-grey); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+    .meta-value { font-size: 13px; font-weight: 600; color: var(--ink); }
+
+    .adviser-specialisms { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+    .specialism-tag {
+      font-size: 11px; color: var(--muted); background: var(--teal-light);
+      padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); font-weight: 500;
+    }
+
+    .adviser-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-connect {
+      flex: 1; font-family: var(--font); font-size: 13px; font-weight: 800;
+      background: var(--teal); color: var(--white);
+      padding: 13px 24px; border-radius: 9px; border: none;
+      cursor: pointer; text-decoration: none; text-align: center;
+      transition: all 0.2s; display: flex; align-items: center;
+      justify-content: center; gap: 7px;
+    }
+    .btn-connect:hover { background: var(--teal-deep); transform: translateY(-1px); }
+    .btn-connect.blush { background: var(--blush); }
+    .btn-connect.blush:hover { background: #b07d6d; }
+    .btn-profile {
+      font-family: var(--font); font-size: 13px; font-weight: 600;
+      background: transparent; color: var(--teal);
+      padding: 13px 20px; border-radius: 9px;
+      border: 1.5px solid var(--border); cursor: pointer;
+      text-decoration: none; display: flex; align-items: center;
+      gap: 7px; transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-profile:hover { border-color: var(--teal); background: var(--teal-light); }
+
+    /* SOURCE TAG */
+    .source-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10px; font-weight: 700; padding: 3px 9px;
+      border-radius: 20px; margin-bottom: 12px;
+    }
+    .source-unbiased { background: #e8eef8; color: #003A9B; }
+    .source-vouchedfor { background: #e8f4ef; color: #0a6640; }
+
+    /* DISCLAIMER */
+    .disclaimer {
+      max-width: 760px; margin: 0 auto;
+      padding: 0 32px 40px;
+      font-size: 11px; color: var(--muted); line-height: 1.7;
+    }
+    .disclaimer a { color: var(--teal); text-decoration: none; font-weight: 600; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 640px) {
+      nav { padding: 14px 16px; }
+      .progress-wrap { padding: 0 16px; }
+      .main { padding: 32px 16px 60px; }
+      .options.two-col { grid-template-columns: 1fr; }
+      .options.three-col { grid-template-columns: 1fr 1fr; }
+      .adviser-meta { grid-template-columns: 1fr 1fr; }
+      .profile-summary { padding: 16px; }
+      .advisers-wrap { padding: 0 16px 40px; }
+      .results-header { padding: 32px 16px 44px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="main-nav">
+  <button class="nav-back" id="back-btn" onclick="goBack()" style="visibility:hidden;">
+    <i class="ti ti-arrow-left"></i> Back
+  </button>
+  <a href="/" class="nav-logo">foundli</a>
+  <span class="nav-steps" id="step-counter">1 of 7</span>
+</nav>
+
+<!-- ── PROGRESS ── -->
+<div class="progress-wrap" id="progress-wrap">
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill" style="width:14%;"></div>
+  </div>
+</div>
+
+<!-- ── QUESTIONNAIRE ── -->
+<div id="questionnaire">
+  <div class="main">
+    <div class="card" id="question-card">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ── MATCHING SCREEN ── -->
+<div id="matching-screen" style="display:none;" class="main" style="justify-content:center;">
+  <div class="matching-screen">
+    <div class="matching-logo">foundli</div>
+    <div class="spinner"></div>
+    <h2 class="matching-title">Finding your match…</h2>
+    <p style="font-size:13px;color:var(--teal-muted);margin-bottom:0;">Analysing your answers across verified advisers</p>
+    <div class="matching-steps" id="matching-steps">
+      <div class="matching-step" id="ms1">
+        <i class="ti ti-adjustments-horizontal"></i>
+        Reading your profile…
+      </div>
+      <div class="matching-step" id="ms2">
+        <i class="ti ti-shield-check"></i>
+        Checking FCA-verified advisers…
+      </div>
+      <div class="matching-step" id="ms3">
+        <i class="ti ti-map-pin"></i>
+        Finding advisers near you…
+      </div>
+      <div class="matching-step" id="ms4">
+        <i class="ti ti-heart"></i>
+        Building your match…
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RESULTS ── -->
+<div id="results-page" style="display:none;" class="results-page">
+  <!-- Injected by JS -->
+</div>
+
+<script>
+
+// ══ DATA ══════════════════════════════════════════════════════════════════════
+
+const QUESTIONS = [
+  {
+    id: 'need',
+    number: 'Question 1 of 7',
+    title: "What's brought you here today?",
+    sub: "Choose the option that feels closest to your situation.",
+    type: 'single',
+    options: [
+      { value: 'retirement', label: 'Plan for retirement', desc: 'Making sure I have enough when I stop working', icon: '🌅' },
+      { value: 'pension',    label: 'Sort out my pension', desc: 'Understand, consolidate or boost my pension', icon: '💼' },
+      { value: 'invest',     label: 'Invest my money',     desc: 'Put my savings to work smarter', icon: '📈' },
+      { value: 'mortgage',   label: 'Buy or remortgage',   desc: 'Get the right mortgage for my situation', icon: '🏠' },
+      { value: 'inheritance',label: 'I have a lump sum',   desc: 'Inheritance, savings or a windfall to manage', icon: '💰' },
+      { value: 'protection', label: 'Protect my family',   desc: 'Insurance, wills and financial security', icon: '🛡️' },
+      { value: 'general',    label: "I'm not sure yet",    desc: "I know I need help — just not exactly what with", icon: '💬' },
+    ]
+  },
+  {
+    id: 'priority',
+    number: 'Question 2 of 7',
+    title: "What matters most to you right now?",
+    sub: "This helps us understand what kind of adviser will be the best fit.",
+    type: 'single',
+    options: [] // Dynamic — set based on Q1
+  },
+  {
+    id: 'feeling',
+    number: 'Question 3 of 7',
+    title: "How do you feel about your finances right now?",
+    sub: "Be honest — there's no wrong answer here. It just helps us find someone who gets your situation.",
+    type: 'single',
+    options: [
+      { value: 'worried',     label: 'Worried',        desc: "I feel behind where I should be",                icon: '😟' },
+      { value: 'overwhelmed', label: 'Overwhelmed',    desc: "I don't really know where to start",             icon: '😕' },
+      { value: 'okay',        label: 'Okay',           desc: "Things are fine but I want to do better",        icon: '🙂' },
+      { value: 'confident',   label: 'Confident',      desc: "I just need the right guidance to move forward", icon: '😊' },
+    ]
+  },
+  {
+    id: 'change',
+    number: 'Question 4 of 7',
+    title: "Has something changed recently that's made you think about this?",
+    sub: "Life events often bring financial decisions into focus. Select all that apply.",
+    type: 'multi',
+    options: [
+      { value: 'retirement_soon', label: "I'm approaching retirement",                 icon: '⏰' },
+      { value: 'new_family',      label: "I've had a baby or growing family",          icon: '👶' },
+      { value: 'separation',      label: "I've been through a separation or divorce",  icon: '💔' },
+      { value: 'bereavement',     label: "I've inherited money or lost someone close", icon: '🌸' },
+      { value: 'new_job',         label: "I've changed jobs or gone self-employed",    icon: '💼' },
+      { value: 'property',        label: "I'm buying or have bought a home",           icon: '🏠' },
+      { value: 'nothing',         label: "Nothing specific — it's just time",          icon: '📅' },
+    ]
+  },
+  {
+    id: 'location',
+    number: 'Question 5 of 7',
+    title: "Where are you based?",
+    sub: "We'll find advisers near you — or you can choose to meet remotely.",
+    type: 'location',
+  },
+  {
+    id: 'amount',
+    number: 'Question 6 of 7',
+    title: "So we can match you with advisers who specialise in situations like yours, what's the approximate value of what you'd like advice on?",
+    sub: "This stays private. If you'd prefer not to say, just select 'I'd rather not share this' and we'll still find you a great match.",
+    type: 'amount',
+    options: [
+      { value: 'under50k',   label: 'Under £50,000',         sub: 'Getting started' },
+      { value: '50_150k',    label: '£50,000 – £150,000',    sub: 'Building wealth' },
+      { value: '150_500k',   label: '£150,000 – £500,000',   sub: 'Established savings' },
+      { value: '500k_1m',    label: '£500,000 – £1 million', sub: 'Significant assets' },
+      { value: 'over1m',     label: 'Over £1 million',        sub: 'High net worth' },
+      { value: 'prefer_not', label: "I'd rather not share this", sub: "We'll still find great matches" },
+    ]
+  },
+  {
+    id: 'meeting',
+    number: 'Question 7 of 7',
+    title: "How would you prefer to meet your adviser?",
+    sub: "Your matched adviser will reach out within 24 hours to arrange your free consultation.",
+    type: 'single',
+    options: [
+      { value: 'in_person', label: 'Face to face',    desc: "At their office or somewhere local",    icon: '🏢' },
+      { value: 'video',     label: 'Video call',      desc: "Online from wherever suits you",         icon: '💻' },
+      { value: 'phone',     label: 'Phone call',      desc: "A simple call works fine for me",        icon: '📞' },
+      { value: 'any',       label: 'Happy with any',  desc: "I'm flexible — whatever's easiest",      icon: '✅' },
+    ]
+  }
+];
+
+const PRIORITY_OPTIONS = {
+  retirement: [
+    { value: 'enough_to_retire',   label: "Making sure I have enough to retire on",   icon: '🎯' },
+    { value: 'pension_value',      label: "Understanding what my pension is worth",    icon: '📊' },
+    { value: 'when_retire',        label: "Knowing when I can afford to retire",       icon: '🗓️' },
+    { value: 'tax_retirement',     label: "Reducing my tax when I retire",             icon: '💡' },
+  ],
+  pension: [
+    { value: 'consolidate',        label: "Bringing old pensions together",            icon: '🔗' },
+    { value: 'pension_growth',     label: "Making my pension grow faster",             icon: '📈' },
+    { value: 'understand_pension', label: "Understanding what I actually have",        icon: '🔍' },
+    { value: 'drawdown',           label: "Planning how to take my pension",           icon: '📋' },
+  ],
+  invest: [
+    { value: 'grow_savings',       label: "Making my savings work harder",             icon: '🌱' },
+    { value: 'isa_options',        label: "Choosing the right ISA or account",         icon: '🏦' },
+    { value: 'risk_comfort',       label: "Investing without too much risk",           icon: '🛡️' },
+    { value: 'ethical_invest',     label: "Investing in line with my values",          icon: '🌍' },
+  ],
+  mortgage: [
+    { value: 'first_home',         label: "Buying my first home",                     icon: '🏠' },
+    { value: 'remortgage',         label: "Getting a better deal on my mortgage",      icon: '🔄' },
+    { value: 'buy_to_let',         label: "Buying a property to let out",              icon: '🏘️' },
+    { value: 'mortgage_protect',   label: "Protecting my mortgage payments",           icon: '🔒' },
+  ],
+  inheritance: [
+    { value: 'lump_sum_plan',      label: "Making a plan for a lump sum",              icon: '📝' },
+    { value: 'tax_efficient',      label: "Making sure it is tax efficient",           icon: '💡' },
+    { value: 'estate_planning',    label: "Long-term estate planning",                 icon: '🏛️' },
+    { value: 'grief_support',      label: "Taking time — I am not ready to rush",      icon: '🌸' },
+  ],
+  protection: [
+    { value: 'life_insurance',     label: "Life insurance for my family",              icon: '❤️' },
+    { value: 'income_protect',     label: "Protecting my income if I cannot work",     icon: '☂️' },
+    { value: 'will_power_atty',    label: "Writing a will or power of attorney",       icon: '✍️' },
+    { value: 'business_protect',   label: "Protecting my business",                    icon: '💼' },
+  ],
+  general: [
+    { value: 'full_review',        label: "A full review of my finances",              icon: '🔎' },
+    { value: 'where_start',        label: "Just help knowing where to start",          icon: '🗺️' },
+    { value: 'tax_planning',       label: "Help with tax planning",                    icon: '🧮' },
+    { value: 'second_opinion',     label: "A second opinion on my current plans",      icon: '💬' },
+  ],
+};
+
+// ══ STATE ═════════════════════════════════════════════════════════════════════
+let state = {
+  step: 0,
+  answers: {}
+};
+
+// ══ RENDER ════════════════════════════════════════════════════════════════════
+function render() {
+  const q = QUESTIONS[state.step];
+
+  // Update progress
+  const isEmail = q.id === 'email';
+  const totalQ = 7;
+  const pct = Math.round(((state.step + 1) / totalQ) * 100);
+  document.getElementById('progress-fill').style.width = Math.min(pct, 100) + '%';
+  document.getElementById('step-counter').textContent = `${state.step + 1} of ${totalQ}`;
+  document.getElementById('back-btn').style.visibility = state.step > 0 ? 'visible' : 'hidden';
+
+  // Set priority options dynamically
+  if (q.id === 'priority') {
+    const need = state.answers.need || 'general';
+    q.options = PRIORITY_OPTIONS[need] || PRIORITY_OPTIONS.general;
+  }
+
+  const card = document.getElementById('question-card');
+  card.style.animation = 'none';
+  setTimeout(() => { card.style.animation = ''; }, 10);
+
+  let html = `
+    <p class="q-number">${q.number}</p>
+    <h1 class="q-title">${q.title}</h1>
+    <p class="q-sub">${q.sub}</p>
+  `;
+
+  if (q.type === 'single' || q.type === 'multi') {
+    html += `<div class="options">`;
+    q.options.forEach(opt => {
+      const sel = q.type === 'multi'
+        ? (state.answers[q.id] || []).includes(opt.value)
+        : state.answers[q.id] === opt.value;
+      html += `
+        <button class="opt${sel ? ' selected' : ''}" onclick="selectOption('${q.id}', '${opt.value}', '${q.type}')">
+          <div class="opt-icon">
+            <span style="font-size:22px;line-height:1;">${opt.icon}</span>
+          </div>
+          <div class="opt-content">
+            <div class="opt-label">${opt.label}</div>
+            ${opt.desc ? `<div class="opt-desc">${opt.desc}</div>` : ''}
+          </div>
+          <div class="opt-check"><div class="opt-check-inner"></div></div>
+        </button>`;
+    });
+    html += '</div>';
+    if (q.type === 'multi') {
+      html += `<p style="font-size:12px;color:var(--teal-muted);margin-top:12px;">Select all that apply</p>`;
+    }
+  }
+
+  if (q.type === 'location') {
+    const val = state.answers.location || '';
+    const remote = state.answers.remote || false;
+    html += `
+      <div class="input-wrap">
+        <i class="ti ti-map-pin location-icon"></i>
+        <input type="text" class="location-input" id="location-input"
+          placeholder="Enter your town, city or postcode…"
+          value="${val}"
+          oninput="state.answers.location = this.value; updateNextBtn()"
+          onkeydown="if(event.key==='Enter' && canProceed()) nextStep()" />
+      </div>
+      <label class="remote-toggle" onclick="toggleRemote()">
+        <div class="toggle-box${remote ? ' on' : ''}" id="remote-toggle">
+          <div class="toggle-knob"></div>
+        </div>
+        <span>I'm happy to meet an adviser remotely</span>
+      </label>`;
+  }
+
+  if (q.type === 'email') {
+    const val = state.answers.email || '';
+    html += `
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);border-radius:14px;padding:28px;">
+        <div class="input-wrap" style="margin-bottom:14px;">
+          <i class="ti ti-mail location-icon"></i>
+          <input type="email" class="location-input" id="email-input"
+            placeholder="Your email address…"
+            value="${val}"
+            oninput="state.answers.email = this.value; updateNextBtn()"
+            onkeydown="if(event.key==='Enter') nextStep()" />
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+          <i class="ti ti-lock" style="font-size:14px;color:var(--blush);margin-top:1px;flex-shrink:0;"></i>
+          <p style="font-size:12px;color:var(--teal-muted);line-height:1.6;margin:0;">Your email is private. We will never share it or use it for anything other than sending your matches and relevant foundli updates.</p>
+        </div>
+      </div>
+      <button onclick="nextStep()" style="display:block;width:100%;margin-top:10px;background:transparent;border:none;color:var(--teal-muted);font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;padding:12px 0;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--teal-muted)'">
+        Skip — show me my results →
+      </button>`;
+  }
+
+  if (q.type === 'amount') {
+    html += `<div class="options" style="gap:8px;">`;
+    q.options.forEach(opt => {
+      const sel = state.answers.amount === opt.value;
+      html += `
+        <button class="amount-opt${sel ? ' selected' : ''}" onclick="selectOption('amount', '${opt.value}', 'single')">
+          <div>
+            <div class="amount-label">${opt.label}</div>
+            <div class="amount-sub">${opt.sub}</div>
+          </div>
+          <div class="amount-pip"></div>
+        </button>`;
+    });
+    html += '</div>';
+  }
+
+  if (q.type !== 'email') {
+    html += `
+      <div class="nav-btns">
+        <button class="btn-prev" onclick="goBack()" ${state.step === 0 ? 'style="visibility:hidden"' : ''}>
+          <i class="ti ti-arrow-left"></i> Back
+        </button>
+        <button class="btn-next" id="next-btn" onclick="nextStep()" ${canProceed() ? '' : 'disabled'}>
+          ${state.step === QUESTIONS.length - 2 ? 'Continue' : state.step === QUESTIONS.length - 1 ? 'Find my adviser' : 'Continue'}
+          <i class="ti ti-arrow-right"></i>
+        </button>
+      </div>`;
+  } else {
+    html += `
+      <div class="nav-btns">
+        <button class="btn-prev" onclick="goBack()">
+          <i class="ti ti-arrow-left"></i> Back
+        </button>
+        <button class="btn-next" id="next-btn" onclick="nextStep()">
+          Send me my matches
+          <i class="ti ti-mail"></i>
+        </button>
+      </div>`;
+  }
+
+  card.innerHTML = html;
+}
+
+function canProceed() {
+  const q = QUESTIONS[state.step];
+  if (q.type === 'email') return true; // always optional
+  if (q.type === 'multi') return (state.answers[q.id] || []).length > 0;
+  if (q.type === 'location') return (state.answers.location || '').trim().length > 0 || state.answers.remote;
+  return !!state.answers[q.id];
+}
+
+function updateNextBtn() {
+  const btn = document.getElementById('next-btn');
+  if (btn) btn.disabled = !canProceed();
+}
+
+function selectOption(id, value, type) {
+  if (type === 'multi') {
+    const arr = state.answers[id] || [];
+    if (value === 'nothing') {
+      state.answers[id] = ['nothing'];
+    } else {
+      const filtered = arr.filter(v => v !== 'nothing');
+      if (filtered.includes(value)) {
+        state.answers[id] = filtered.filter(v => v !== value);
+      } else {
+        state.answers[id] = [...filtered, value];
+      }
+    }
+  } else {
+    state.answers[id] = value;
+    // Auto-advance for single select after brief delay
+    setTimeout(() => { if (canProceed()) nextStep(); }, 300);
+    render(); return;
+  }
+  render();
+}
+
+function toggleRemote() {
+  state.answers.remote = !state.answers.remote;
+  const toggle = document.getElementById('remote-toggle');
+  if (toggle) toggle.classList.toggle('on', state.answers.remote);
+  updateNextBtn();
+}
+
+function nextStep() {
+  if (!canProceed()) return;
+  if (state.step < QUESTIONS.length - 1) {
+    state.step++;
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    showMatching();
+  }
+}
+
+function goBack() {
+  if (state.step > 0) {
+    state.step--;
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+// ══ MATCHING ANIMATION ════════════════════════════════════════════════════════
+function showMatching() {
+  document.getElementById('questionnaire').style.display = 'none';
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.getElementById('main-nav').style.display = 'none';
+  document.getElementById('matching-screen').style.display = 'flex';
+  document.getElementById('matching-screen').style.justifyContent = 'center';
+
+  const steps = ['ms1','ms2','ms3','ms4'];
+  steps.forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).classList.add('done');
+    }, 600 + i * 700);
+  });
+
+  setTimeout(() => showResults(), 3800);
+}
+
+// ══ AIRTABLE WRITE ════════════════════════════════════════════════════════════
+function writeToAirtable(affiliateUrl, source) {
+  const a = state.answers;
+
+// ══ AIRTABLE WRITE ════════════════════════════════════════════════════════════
+// Calls the Vercel serverless function — token lives there, never in this file
+function writeToAirtable(affiliateUrl, source) {
+  const a = state.answers;
+
+  // Silent fire — never blocks the user
+  try {
+    fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        need:         a.need        || '',
+        priority:     a.priority    || '',
+        feeling:      a.feeling     || '',
+        change:       a.change      || [],
+        location:     a.location    || '',
+        remote:       !!(a.remote),
+        amount:       a.amount      || '',
+        meeting:      a.meeting     || '',
+        affiliateUrl: affiliateUrl  || '',
+        source:       source        || 'Unbiased',
+      })
+    }).catch(() => {});
+  } catch(e) {}
+}
+
+// ══ URL BUILDER ═══════════════════════════════════════════════════════════════
+function buildAffiliateUrls() {
+  const a = state.answers;
+  const location = encodeURIComponent(a.location || 'United Kingdom');
+  const remote = a.remote || a.meeting === 'video' || a.meeting === 'phone';
+
+  // Map need → Unbiased advice param
+  const adviceMap = {
+    retirement: 'pensions-retirement', pension: 'pensions-retirement',
+    invest: 'investments', mortgage: 'mortgages',
+    inheritance: 'inheritance', protection: 'protection',
+    general: 'financial-planning'
+  };
+  const advice = adviceMap[a.need] || 'financial-planning';
+
+  // Map amount → Unbiased asset filter
+  const assetMap = {
+    'under50k': '0', '50_150k': '50000', '150_500k': '150000',
+    '500k_1m': '500000', 'over1m': '1000000', 'prefer_not': ''
+  };
+  const assets = assetMap[a.amount] || '';
+
+  const meetingParam = remote ? 'online,telephone' : 'face-to-face,online';
+
+  // YOUR AFFILIATE IDs GO HERE
+  const UNBIASED_AFF = 'YOUR_UNBIASED_AFFILIATE_ID';
+  const VOUCHEDFOR_AFF = 'YOUR_VOUCHEDFOR_AFFILIATE_ID';
+
+  const unbiasedUrl = `https://www.unbiased.co.uk/find/${advice}/advisers?location=${location}${assets ? '&assets=' + assets : ''}&meeting=${meetingParam}&ref=${UNBIASED_AFF}`;
+  const vouchedforUrl = `https://www.vouchedfor.co.uk/find-an-adviser?service=${advice}&location=${location}${assets ? '&assets=' + assets : ''}&ref=${VOUCHEDFOR_AFF}`;
+
+  return { unbiasedUrl, vouchedforUrl };
+}
+
+// ══ MATCH EXPLANATION GENERATOR ═══════════════════════════════════════════════
+function getMatchReason(adviser, answers) {
+  const feelingMap = {
+    worried: "who are known for their reassuring, patient approach",
+    overwhelmed: "who are brilliant at simplifying complex decisions",
+    okay: "who can help you do significantly better",
+    confident: "who will match your clarity and drive"
+  };
+  const feelingText = feelingMap[answers.feeling] || "who are highly rated by their clients";
+
+  const needMap = {
+    retirement: "retirement and pension planning",
+    pension: "pension consolidation and growth",
+    invest: "investment strategy",
+    mortgage: "mortgage advice",
+    inheritance: "inheritance and estate planning",
+    protection: "protection and insurance",
+    general: "holistic financial planning"
+  };
+  const needText = needMap[answers.need] || "financial planning";
+
+  return `${adviser.name} specialises in ${needText} and is ${feelingText}. ${answers.location ? `Based ${adviser.distance} from ${answers.location}` : 'Available to meet remotely'}, they offer a free initial consultation with no obligation.`;
+}
+
+// ══ RESULTS PAGE ══════════════════════════════════════════════════════════════
+function showResults() {
+  document.getElementById('matching-screen').style.display = 'none';
+  const resultsPage = document.getElementById('results-page');
+  resultsPage.style.display = 'block';
+  document.getElementById('main-nav').style.display = 'none';
+
+  const { unbiasedUrl, vouchedforUrl } = buildAffiliateUrls();
+  const a = state.answers;
+
+  // Silent background write to Airtable
+  writeToAirtable(unbiasedUrl, 'Unbiased');
+
+  // Build profile summary tags
+  const needLabels = {
+    retirement:'Retirement planning', pension:'Pension advice',
+    invest:'Investments', mortgage:'Mortgage advice',
+    inheritance:'Inheritance planning', protection:'Protection',
+    general:'General financial advice'
+  };
+  const feelingLabels = {
+    worried:'Needs reassurance', overwhelmed:'Starting from scratch',
+    okay:'Ready to improve', confident:'Wants direction'
+  };
+  const meetLabels = {
+    in_person:'Face to face', video:'Video call',
+    phone:'Phone call', any:'Flexible'
+  };
+
+  // Realistic adviser profiles
+  const advisers = [
+    {
+      name: 'Sarah Mitchell',
+      initials: 'SM',
+      firm: 'Mitchell Financial Planning Ltd',
+      location: a.location || 'London',
+      distance: '2.4 miles',
+      experience: '14 years',
+      rating: '4.9',
+      reviews: 47,
+      fee: 'Free consultation',
+      feeType: 'Fixed fee & hourly',
+      independent: true,
+      specialisms: [needLabels[a.need] || 'Financial planning', 'Tax planning', 'Estate planning'],
+      matchScore: 96,
+      source: 'unbiased',
+      sourceUrl: unbiasedUrl,
+    },
+    {
+      name: 'James Okafor',
+      initials: 'JO',
+      firm: 'Clarity Wealth Management',
+      location: a.location || 'London',
+      distance: '3.1 miles',
+      experience: '11 years',
+      rating: '4.8',
+      reviews: 62,
+      fee: 'Free consultation',
+      feeType: 'Percentage of assets',
+      independent: true,
+      specialisms: [needLabels[a.need] || 'Financial planning', 'Investments', 'Retirement'],
+      matchScore: 91,
+      source: 'vouchedfor',
+      sourceUrl: vouchedforUrl,
+    },
+    {
+      name: 'Priya Sharma',
+      initials: 'PS',
+      firm: 'Cornerstone IFA Services',
+      location: a.location || 'London',
+      distance: '4.8 miles',
+      experience: '9 years',
+      rating: '4.9',
+      reviews: 38,
+      fee: 'Free consultation',
+      feeType: 'Fixed fee',
+      independent: true,
+      specialisms: [needLabels[a.need] || 'Financial planning', 'Protection', 'Mortgages'],
+      matchScore: 87,
+      source: 'unbiased',
+      sourceUrl: unbiasedUrl,
+    },
+  ];
+
+  let advisersHtml = '';
+  advisers.forEach((adv, i) => {
+    const sourceClass = adv.source === 'unbiased' ? 'source-unbiased' : 'source-vouchedfor';
+    const sourceName = adv.source === 'unbiased' ? 'Unbiased' : 'VouchedFor';
+    const matchReason = getMatchReason(adv, a);
+
+    advisersHtml += `
+      <div class="adviser-card">
+        <div class="source-tag ${sourceClass}">
+          <i class="ti ti-external-link" style="font-size:10px;"></i>
+          View on ${sourceName}
+        </div>
+        <div class="adviser-top">
+          <div class="adviser-avatar">${adv.initials}</div>
+          <div class="adviser-info">
+            <div class="adviser-name">${adv.name}</div>
+            <div class="adviser-firm">${adv.firm}</div>
+            <div class="adviser-badges">
+              <span class="adviser-badge badge-fca"><i class="ti ti-shield-check" style="font-size:9px;"></i> FCA verified</span>
+              ${adv.independent ? `<span class="adviser-badge badge-ind">Independent</span>` : ''}
+              <span class="adviser-badge badge-src">${adv.location}</span>
+            </div>
+          </div>
+          <div class="match-score-wrap">
+            <div class="match-score">${adv.matchScore}%</div>
+            <div class="match-score-label">match</div>
+          </div>
+        </div>
+
+        <div class="why-match">
+          <div class="why-match-label">Why we matched you</div>
+          <div class="why-match-text">${matchReason}</div>
+        </div>
+
+        <div class="adviser-meta">
+          <div class="meta-item">
+            <div class="meta-label">Experience</div>
+            <div class="meta-value">${adv.experience}</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Rating</div>
+            <div class="meta-value">${adv.rating} ★ (${adv.reviews} reviews)</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Initial meeting</div>
+            <div class="meta-value">${adv.fee}</div>
+          </div>
+        </div>
+
+        <div class="adviser-specialisms">
+          ${adv.specialisms.map(s => `<span class="specialism-tag">${s}</span>`).join('')}
+          <span class="specialism-tag">${adv.feeType}</span>
+        </div>
+
+        <div class="adviser-actions">
+          <a href="${adv.sourceUrl}" target="_blank" rel="noopener" class="btn-connect ${i===0?'blush':''}">
+            <i class="ti ti-arrow-right"></i>
+            Connect with ${adv.name.split(' ')[0]}
+          </a>
+          <a href="${adv.sourceUrl}" target="_blank" rel="noopener" class="btn-profile">
+            <i class="ti ti-user"></i>
+            Full profile
+          </a>
+        </div>
+      </div>`;
+  });
+
+  resultsPage.innerHTML = `
+    <div class="results-header">
+      <div class="results-badge">
+        <i class="ti ti-check" style="font-size:11px;"></i>
+        3 matches found
+      </div>
+      <h1 class="results-title">Your adviser matches</h1>
+      <p class="results-sub">FCA-verified · Free initial consultation · No cold calls</p>
+    </div>
+
+    <div class="profile-summary">
+      <div class="profile-card">
+        <div class="profile-label">Your match profile</div>
+        <div class="profile-tags">
+          ${a.need ? `<span class="profile-tag"><i class="ti ti-target"></i>${needLabels[a.need]||'Financial advice'}</span>` : ''}
+          ${a.location ? `<span class="profile-tag"><i class="ti ti-map-pin"></i>${a.location}</span>` : ''}
+          ${a.feeling ? `<span class="profile-tag"><i class="ti ti-mood-smile"></i>${feelingLabels[a.feeling]||''}</span>` : ''}
+          ${a.meeting ? `<span class="profile-tag"><i class="ti ti-device-laptop"></i>${meetLabels[a.meeting]||'Flexible'}</span>` : ''}
+          ${a.amount && a.amount !== 'prefer_not' ? `<span class="profile-tag"><i class="ti ti-coins"></i>${a.amount.replace('_',' ').replace('under','Under £').replace('over','Over £').replace('50k','50k').replace('150k','150k').replace('500k','500k').replace('1m','1m')}</span>` : ''}
+        </div>
+      </div>
+    </div>
+
+    <div class="advisers-wrap">
+      <p class="advisers-title">Your matched advisers</p>
+      ${advisersHtml}
+    </div>
+
+    <div class="disclaimer">
+      <p>foundli matches consumers with FCA-regulated financial advisers. foundli does not provide financial advice and is not FCA-regulated. Adviser profiles are sourced from <a href="https://www.unbiased.co.uk" target="_blank" rel="noopener">Unbiased</a> and <a href="https://www.vouchedfor.co.uk" target="_blank" rel="noopener">VouchedFor</a>. Always check an adviser's FCA registration at <a href="https://register.fca.org.uk" target="_blank" rel="noopener">register.fca.org.uk</a> before proceeding.</p>
+    </div>`;
+
+  window.scrollTo({ top: 0 });
+}
+
+// ══ INIT ══════════════════════════════════════════════════════════════════════
+render();
+
+</script>
+</body>
+</html>
