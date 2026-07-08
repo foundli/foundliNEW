@@ -648,7 +648,6 @@ function render() {
   const q = QUESTIONS[state.step];
 
   // Update progress
-  const isEmail = q.id === 'email';
   const totalQ = 7;
   const pct = Math.round(((state.step + 1) / totalQ) * 100);
   document.getElementById('progress-fill').style.width = Math.min(pct, 100) + '%';
@@ -715,28 +714,6 @@ function render() {
       </label>`;
   }
 
-  if (q.type === 'email') {
-    const val = state.answers.email || '';
-    html += `
-      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);border-radius:14px;padding:28px;">
-        <div class="input-wrap" style="margin-bottom:14px;">
-          <i class="ti ti-mail location-icon"></i>
-          <input type="email" class="location-input" id="email-input"
-            placeholder="Your email address…"
-            value="${val}"
-            oninput="state.answers.email = this.value; updateNextBtn()"
-            onkeydown="if(event.key==='Enter') nextStep()" />
-        </div>
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
-          <i class="ti ti-lock" style="font-size:14px;color:var(--blush);margin-top:1px;flex-shrink:0;"></i>
-          <p style="font-size:12px;color:var(--teal-muted);line-height:1.6;margin:0;">Your email is private. We will never share it or use it for anything other than sending your matches and relevant foundli updates.</p>
-        </div>
-      </div>
-      <button onclick="nextStep()" style="display:block;width:100%;margin-top:10px;background:transparent;border:none;color:var(--teal-muted);font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;padding:12px 0;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--teal-muted)'">
-        Skip — show me my results →
-      </button>`;
-  }
-
   if (q.type === 'amount') {
     html += `<div class="options" style="gap:8px;">`;
     q.options.forEach(opt => {
@@ -753,36 +730,22 @@ function render() {
     html += '</div>';
   }
 
-  if (q.type !== 'email') {
-    html += `
-      <div class="nav-btns">
-        <button class="btn-prev" onclick="goBack()" ${state.step === 0 ? 'style="visibility:hidden"' : ''}>
-          <i class="ti ti-arrow-left"></i> Back
-        </button>
-        <button class="btn-next" id="next-btn" onclick="nextStep()" ${canProceed() ? '' : 'disabled'}>
-          ${state.step === QUESTIONS.length - 2 ? 'Continue' : state.step === QUESTIONS.length - 1 ? 'Find my adviser' : 'Continue'}
-          <i class="ti ti-arrow-right"></i>
-        </button>
-      </div>`;
-  } else {
-    html += `
-      <div class="nav-btns">
-        <button class="btn-prev" onclick="goBack()">
-          <i class="ti ti-arrow-left"></i> Back
-        </button>
-        <button class="btn-next" id="next-btn" onclick="nextStep()">
-          Send me my matches
-          <i class="ti ti-mail"></i>
-        </button>
-      </div>`;
-  }
+  html += `
+    <div class="nav-btns">
+      <button class="btn-prev" onclick="goBack()" ${state.step === 0 ? 'style="visibility:hidden"' : ''}>
+        <i class="ti ti-arrow-left"></i> Back
+      </button>
+      <button class="btn-next" id="next-btn" onclick="nextStep()" ${canProceed() ? '' : 'disabled'}>
+        ${state.step === QUESTIONS.length - 1 ? 'Find my adviser ✦' : 'Continue'}
+        <i class="ti ti-arrow-right"></i>
+      </button>
+    </div>`;
 
   card.innerHTML = html;
 }
 
 function canProceed() {
   const q = QUESTIONS[state.step];
-  if (q.type === 'email') return true; // always optional
   if (q.type === 'multi') return (state.answers[q.id] || []).length > 0;
   if (q.type === 'location') return (state.answers.location || '').trim().length > 0 || state.answers.remote;
   return !!state.answers[q.id];
@@ -943,8 +906,8 @@ function getMatchReason(adviser, answers) {
     general: "holistic financial planning"
   };
   const needText = needMap[answers.need] || "financial planning";
-
-  return `${adviser.name} specialises in ${needText} and is ${feelingText}. ${answers.location ? `Based ${adviser.distance} from ${answers.location}` : 'Available to meet remotely'}, they offer a free initial consultation with no obligation.`;
+  const locationText = answers.location ? 'Based ' + adviser.distance + ' from ' + answers.location : 'Available to meet remotely';
+  return adviser.name + ' specialises in ' + needText + ' and is ' + feelingText + '. ' + locationText + ', they offer a free initial consultation with no obligation.';
 }
 
 // ══ RESULTS PAGE ══════════════════════════════════════════════════════════════
