@@ -1,6 +1,16 @@
 // foundli — Airtable submission handler
 // Runs on Vercel's servers — token never exposed to the browser
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '1mb',
+    },
+  },
+};
+
+export default async function handler(req, res) {
+
 export default async function handler(req, res) {oken never exposed to the browser
 
 export default async function handler(req, res) {
