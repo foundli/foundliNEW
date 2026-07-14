@@ -1,32 +1,29 @@
 // foundli — Airtable submission handler
-// Runs on Vercel's servers — token never exposed to the browser
+// Runs on Vercel serverless — token never exposed to browser
 
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '1mb',
-    },
-  },
-};
+module.exports = async function handler(req, res) {
 
-export default async function handler(req, res) {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-export default async function handler(req, res) {oken never exposed to the browser
-
-export default async function handler(req, res) {
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
   // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // CORS — allow foundli.co.uk to call this
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   try {
-    const answers = req.body;
+    const answers = req.body || {};
+
+    console.log('Received answers:', JSON.stringify(answers));
+    console.log('AIRTABLE_TOKEN set:', !!process.env.AIRTABLE_TOKEN);
+    console.log('AIRTABLE_BASE_ID set:', !!process.env.AIRTABLE_BASE_ID);
 
     const needLabels = {
       retirement: 'Plan for retirement',
@@ -67,45 +64,49 @@ export default async function handler(req, res) {
       nothing:         'Nothing specific'
     };
 
-    const lifeEvents = (answers.change || []).map(v => lifeEventLabels[v] || v);
+    const lifeEvents = (answers.change || []).map(function(v) {
+      return lifeEventLabels[v] || v;
+    });
 
     const fields = {
-      'Need':                    needLabels[answers.need]       || answers.need      || '',
-      'Priority':                answers.priority               || '',
-      'Feeling':                 feelingLabels[answers.feeling]  || answers.feeling   || '',
+      'Need':                    needLabels[answers.need]        || answers.need     || '',
+      'Priority':                answers.priority                || '',
+      'Feeling':                 feelingLabels[answers.feeling]  || answers.feeling  || '',
       'Life Event':              lifeEvents,
-      'Location':                answers.location               || '',
+      'Location':                answers.location                || '',
       'Remote Meeting':          !!(answers.remote),
-      'Amount':                  amountLabels[answers.amount]   || answers.amount    || '',
+      'Amount':                  amountLabels[answers.amount]    || answers.amount   || '',
       'Meeting Preference':      meetingLabels[answers.meeting]  || answers.meeting  || '',
-      'Affiliate URL Generated': answers.affiliateUrl           || '',
-      'Source':                  answers.source                 || 'Unbiased',
-      'Completed':               true,
+      'Affiliate URL Generated': answers.affiliateUrl            || '',
+      'Source':                  answers.source                  || 'Unbiased',
+      'Completed':               true
     };
 
-    const response = await fetch(
-      'https://api.airtable.com/v0/' + process.env.AIRTABLE_BASE_ID + '/Questionnaire%20Submissions',
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + process.env.AIRTABLE_TOKEN,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ fields })
-      }
-    );
+    console.log('Fields to write:', JSON.stringify(fields));
+
+    const url = 'https://api.airtable.com/v0/' + process.env.AIRTABLE_BASE_ID + '/Questionnaire%20Submissions';
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + process.env.AIRTABLE_TOKEN,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ fields: fields })
+    });
+
+    const responseText = await response.text();
+    console.log('Airtable response status:', response.status);
+    console.log('Airtable response:', responseText);
 
     if (!response.ok) {
-      const err = await response.text();
-      console.error('Airtable error:', err);
-      return res.status(500).json({ error: 'Airtable write failed' });
+      return res.status(500).json({ error: 'Airtable write failed', detail: responseText });
     }
 
-    const result = await response.json();
-    return res.status(200).json({ success: true, id: result.id });
+    return res.status(200).json({ success: true });
 
   } catch (error) {
-    console.error('Submit error:', error);
-    return res.status(500).json({ error: 'Server error' });
+    console.error('Submit error:', error.message);
+    return res.status(500).json({ error: error.message });
   }
-}
+};
