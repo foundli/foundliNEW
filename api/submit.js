@@ -1,4 +1,3 @@
-// foundli — Airtable submission handler
 module.exports = async function handler(req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -9,7 +8,26 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const a = req.body || {};
+    // Parse body manually in case auto-parsing isn't working
+    let a = {};
+    if (req.body && typeof req.body === 'object') {
+      a = req.body;
+    } else if (typeof req.body === 'string') {
+      a = JSON.parse(req.body);
+    } else {
+      // Read raw body
+      const chunks = [];
+      for await (const chunk of req) {
+        chunks.push(chunk);
+      }
+      const raw = Buffer.concat(chunks).toString();
+      console.log('Raw body:', raw);
+      a = raw ? JSON.parse(raw) : {};
+    }
+
+    console.log('Parsed answers:', JSON.stringify(a));
+    console.log('Token set:', !!process.env.AIRTABLE_TOKEN);
+    console.log('Base ID set:', !!process.env.AIRTABLE_BASE_ID);
 
     const needLabels = {
       retirement:'Plan for retirement', pension:'Sort out my pension',
@@ -42,20 +60,20 @@ module.exports = async function handler(req, res) {
       .join(', ');
 
     const fields = {
-      'Need':                    needLabels[a.need]       || a.need      || '',
-      'Priority':                a.priority               || '',
-      'Feeling':                 feelingLabels[a.feeling]  || a.feeling   || '',
-      'Life Event':              lifeEvents               || '',
-      'Location':                a.location               || '',
+      'Need':                    needLabels[a.need]        || a.need     || '',
+      'Priority':                a.priority                || '',
+      'Feeling':                 feelingLabels[a.feeling]  || a.feeling  || '',
+      'Life Event':              lifeEvents                || '',
+      'Location':                a.location                || '',
       'Remote Meeting':          a.remote ? true : false,
-      'Amount':                  amountLabels[a.amount]   || a.amount    || '',
+      'Amount':                  amountLabels[a.amount]    || a.amount   || '',
       'Meeting Preference':      meetingLabels[a.meeting]  || a.meeting  || '',
-      'Affiliate URL Generated': a.affiliateUrl           || '',
-      'Source':                  a.source                 || 'Unbiased',
+      'Affiliate URL Generated': a.affiliateUrl            || '',
+      'Source':                  a.source                  || 'Unbiased',
       'Completed':               true
     };
 
-    console.log('Writing fields:', JSON.stringify(fields));
+    console.log('Fields:', JSON.stringify(fields));
 
     const url = 'https://api.airtable.com/v0/' + process.env.AIRTABLE_BASE_ID + '/Questionnaire%20Submissions';
     const response = await fetch(url, {
@@ -68,7 +86,8 @@ module.exports = async function handler(req, res) {
     });
 
     const responseText = await response.text();
-    console.log('Airtable status:', response.status, 'body:', responseText);
+    console.log('Airtable status:', response.status);
+    console.log('Airtable response:', responseText);
 
     if (!response.ok) {
       return res.status(500).json({ error: 'Airtable error', detail: responseText });
@@ -77,7 +96,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ success: true });
 
   } catch (err) {
-    console.error('Error:', err.message);
+    console.error('Caught error:', err.message, err.stack);
     return res.status(500).json({ error: err.message });
   }
 };
